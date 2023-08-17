@@ -1,7 +1,14 @@
 <?php
+
+/*
+Author: FIKRI
+FB: @YAELAHFIK
+IG : @F.I.K.R.I._
+*/
+
 $cookieBOCOM = file_get_contents('cookie.txt');
 $link = input("MASUKKAN LINK ?? ");
-echo "\nPROSESS AGAK LAMBAT KARENA HANYAK CEK HOTEL YANG MENDAPATKAN REWARD & TIDAK BUTUH PEMBAYARAN DIAWAL!!";
+echo "\nPROSESS AGAK LAMBAT KARENA HANYAK CEK HOTEL YANG MENDAPATKAN REWARD & TIDAK BUTUH PEMBAYARAN DIAWAL!!\n";
 
 $page = file_get_contents('page.txt');
 $pages = explode("\r\n", $page);
@@ -20,13 +27,15 @@ foreach ($uniquePages as $searchPage) {
         preg_match_all('/<div class="f8425bf46a">(.*)<\/div>/U', $resultSearch, $trackss);
         preg_match_all('/class="a4225678b2"><a href="(.*)" class=/U', $resultSearch, $linkHtEL);
         preg_match_all('/>Earn Rp&nbsp;(.*)<\/span><\/span>/U', $resultSearch, $shrt);
-        echo "\nGET DATA HOTEL PAGE ~ " . $pageress[1] . " ~\n";
+        preg_match_all('/class="f6431b446c d5f78961c3">(.*):/U', $resultSearch, $searschN);
+        preg_match_all('/6c47">(.*)ulasan<\/div>/U', $resultSearch, $ripiewHotel);
+
+        echo "\nGET DATA HOTEL " . strtoupper($searschN[1][0]) . " PAGE ~ " . $pageress[1] . " ~\n";
 
         // BAGIAN UNTUK GET LINK HOTEL
         foreach ($linkHtEL[1] as $linkHOTEL) {
             // MASUK KEBAGIAN DALAMNYA
             $resultLink = cekDetail($linkHOTEL, $cookieBOCOM);
-
             // SHORT LINK
             $shortLink = shortLink($linkHOTEL);
             preg_match('/"short_id":"(.*?)","expire/U', $shortLink, $shrt);
@@ -38,28 +47,27 @@ foreach ($uniquePages as $searchPage) {
                 if (strpos($rewardHotel, "Free!") !== false) {
                 } elseif (strpos($rewardHotel, "Earn" && "Dapatkan Kredit") !== false) {
                     preg_match_all('/class="bui-badge__text">\nDapatkan Kredit (.*)\n<\/span>/U', $resultLink, $rewadhtel);
+                    preg_match('/6c47">(.*?)ulasan<\/div>/U', $resultLink, $ripiewHotel);
+
                     $countReward = 0;
                     $rewardList = array();
                     foreach ($rewadhtel[1] as $rewardHotelsss) {
                         if (!empty($rewardHotelsss)) {
                             $countReward++;
-                            $rewardList[] = "[$countReward. $rewardHotelsss]";
+                            $rewardList[] = "[ $countReward. $rewardHotelsss ]";
                         }
                     }
                     if (strpos($resultLink, "No credit card" && "Tanpa kartu kredit") !== false) {
-                        $hasilPAGE =  "[+] " . strtoupper($namaHotel[1]) . " => REWARD : " . implode(' ', $rewardList) . " => TIDAK BUTUH CREDIT CARD!! | LINK : https://t.ly/$shrt[1]\n";
-                        echo $hasilPAGE;
-                    } else {
-                        $hasilPAGE =  "[+] " . strtoupper($namaHotel[1]) . " => REWARD : " . implode(' ', $rewardList) . " => BUTUH CREDIT CARD!! | LINK : https://t.ly/$shrt[1]\n";
+                        $hasilPAGE =  "[+] [ $ripiewHotel[1] Ulasan ] " . strtoupper($namaHotel[1]) . " => REWARD : " . implode(' ', $rewardList) . " => TIDAK BUTUH CREDIT CARD!! | LINK : https://t.ly/$shrt[1]\n\n ";
                         echo $hasilPAGE;
                     }
-
                     // UNTUK SAVE HASIL
                     $saveDATA = fopen("bocomLink.txt", "a");
-                    fputs($saveDATA, "[+] HASIL PAGE : $pageress[1] => $hasilPAGE\r");
+                    fputs($saveDATA, "HASIL PAGE : $pageress[1] => $hasilPAGE\r");
                     fclose($saveDATA);
                 } else {
-                    echo "[!] " . strtoupper($namaHotel[1]) . " HOTEL TIDAK ADA REWARD!! | LINK : https://t.ly/$shrt[1]\n";
+                    // echo "[!] " . strtoupper($namaHotel[1]) . " HOTEL TIDAK ADA REWARD!! | LINK : https://t.ly/$shrt[1]\n";
+                    // UNTUK SAVE HASIL
                 }
             } else {
             }
@@ -154,4 +162,11 @@ function shortLink($linkHOTEL)
     }
     curl_close($ch);
     return $result;
+}
+
+function input($text)
+{
+    echo $text . " => : ";
+    $a = trim(fgets(STDIN));
+    return $a;
 }
