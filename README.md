@@ -9,6 +9,8 @@
 [+] RUN FILE php bocom.php, DAN IKUTIN ALUR SCRIPT YANG DIBUTUHKAN!!
 ![image](https://github.com/ffikri/bookingcom-hotel-search-reward/assets/25825165/8e0a303a-1675-433e-bef6-7e55d75cb0d1)
 
+![Cuplikan layar 2023-08-20 221329](https://github.com/ffikri/bookingcom-hotel-search-reward/assets/25825165/8f9a009a-0d2f-4792-bd21-08a6d8f9f05e)
+
 
  <p align = "right">
   THANKS YOU ♥
