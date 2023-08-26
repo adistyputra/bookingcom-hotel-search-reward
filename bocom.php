@@ -1,10 +1,7 @@
 <?php
 
-/*
-Author: FIKRI
-FB: @YAELAHFIK
-IG : @F.I.K.R.I._
-*/
+
+$apiSHORT = 'api_key'; //ganti apikey kalian
 
 $cookieBOCOM = file_get_contents('cookie.txt');
 $namaFileURL = input("[•|•] MASUKKAN NAMA FILE URL BOCOM ?? *(CTH: data.txt)");
@@ -28,6 +25,7 @@ if ($rewardHOTELmin > 300000) {
     $apages = file_get_contents($namaFileURL);
     $f = explode("\r\n", $apages);
     $f = array_unique($f);
+
 
     foreach ($f as $linkSearch) {
         if (strpos($linkSearch, "&offset") !== false) {
@@ -62,72 +60,78 @@ if ($rewardHOTELmin > 300000) {
             $linkPage = $link . '&offset=' . $searchPage;
             $resultSearch = searchHotel($linkPage, $cookieBOCOM);
 
-            if (strpos($resultSearch, "Page Not Found") === false && strpos($resultSearch, "Menampilkan" && "Showing") !== false) {
-                preg_match('/16cb"><button aria-label=" (.*?)" aria-current="page"/U', $resultSearch, $pageress);
-                preg_match_all('/4251">(.*)<\/h2>/U', $resultSearch, $track);
-                preg_match_all('/<div class="f8425bf46a">(.*)<\/div>/U', $resultSearch, $trackss);
-                preg_match_all('/class="a4225678b2"><a href="(.*)" class=/U', $resultSearch, $linkHtEL);
-                preg_match_all('/>Earn Rp&nbsp;(.*)<\/span><\/span>/U', $resultSearch, $shrt);
-                preg_match_all('/class="f6431b446c d5f78961c3">(.*):/U', $resultSearch, $searschN);
-                preg_match_all('/6c47">(.*)ulasan<\/div>/U', $resultSearch, $ripiewHotel);
+            // Jika halaman tidak memiliki hasil
+            if (strpos($resultSearch, "Page Not Found") === false && strpos($resultSearch, "Halaman tidak ditemukan") === false) {
+                if (strpos($resultSearch, "Menampilkan") !== false && strpos($resultSearch, "Showing") !== false) {
+                    // Mencocokkan data halaman dengan pola yang diinginkan
+                    preg_match('/16cb"><button aria-label=" (.*?)" aria-current="page"/U', $resultSearch, $pageress);
+                    preg_match_all('/4251">(.*)<\/h2>/U', $resultSearch, $track);
+                    preg_match_all('/<div class="f8425bf46a">(.*)<\/div>/U', $resultSearch, $trackss);
+                    preg_match_all('/class="a4225678b2"><a href="(.*)" class=/U', $resultSearch, $linkHtEL);
+                    preg_match_all('/>Earn Rp&nbsp;(.*)<\/span><\/span>/U', $resultSearch, $shrt);
+                    preg_match_all('/class="f6431b446c d5f78961c3">(.*):/U', $resultSearch, $searschN);
+                    preg_match_all('/6c47">(.*)ulasan<\/div>/U', $resultSearch, $ripiewHotel);
 
-                $pageHalaman = empty($pageress) ? "ERROR!! LANJUT NEXT PAGE!!" : $pageress[1];
-                $pageNegaraHalaman = empty($searschN) ? "ERROR!! LANJUT NEXT PAGE!!" : $searschN[1][0];
+                    $pageHalaman = empty($pageress) ? "ERROR!! LANJUT NEXT PAGE!!" : $pageress[1];
+                    $pageNegaraHalaman = empty($searschN) ? "ERROR!! LANJUT NEXT PAGE!!" : $searschN[1][0];
 
-                echo "\n[•|•] GET DATA HOTEL " . strtoupper($pageNegaraHalaman) . " { offset=$searchPage } PAGE ~ " . $pageHalaman . " ~ \n";
+                    echo "\n[•|•] GET DATA HOTEL " . strtoupper($pageNegaraHalaman) . " { offset=$searchPage } PAGE ~ " . $pageHalaman . " ~ \n";
 
-                foreach ($linkHtEL[1] as $linkHOTEL) {
-                    $resultLink = cekDetail($linkHOTEL, $cookieBOCOM);
+                    foreach ($linkHtEL[1] as $linkHOTEL) {
+                        $resultLink = cekDetail($linkHOTEL, $cookieBOCOM);
 
-                    if (preg_match_all('/class="bui-badge__text">\n(.*)\n<\/span>/U', $resultLink, $linkHtEL)) {
-                        $rewardHotel = $linkHtEL[1][0];
-                        preg_match('/class="hp-header--title--text">(.*?)<\/span>/U', $resultLink, $namaHotel);
-                        preg_match('/6c47">(.*?)ulasan<\/div>/U', $resultLink, $ripiewHotel);
-                        $shortLink = shortLink($linkHOTEL);
-                        $response = json_decode($shortLink, true);
-                        $linkShort = $response['short_url'];
+                        if (preg_match_all('/class="bui-badge__text">\n(.*)\n<\/span>/U', $resultLink, $linkHtEL)) {
+                            $rewardHotel = $linkHtEL[1][0];
+                            preg_match('/class="hp-header--title--text">(.*?)<\/span>/U', $resultLink, $namaHotel);
+                            preg_match('/6c47">(.*?)ulasan<\/div>/U', $resultLink, $ripiewHotel);
+                            $shortLink = shortLink($linkHOTEL, $apiSHORT);
+                            $response = json_decode($shortLink, true);
+                            $linkShort = $response['short_url'];
 
-                        if (strpos($rewardHotel, "Free!") === false && strpos($rewardHotel, "Earn" && "Dapatkan Kredit") !== false) {
-                            preg_match_all('/class="bui-badge__text">\nDapatkan Kredit (.*)\n<\/span>/U', $resultLink, $rewadhtel);
+                            if (strpos($rewardHotel, "Free!") === false && strpos($rewardHotel, "Earn" && "Dapatkan Kredit") !== false) {
+                                preg_match_all('/class="bui-badge__text">\nDapatkan Kredit (.*)\n<\/span>/U', $resultLink, $rewadhtel);
 
-                            $rewardList = array();
-                            foreach ($rewadhtel[1] as $rewardHotelsss) {
-                                $rewardValue = preg_replace('/\D/', '', $rewardHotelsss);
-                                if ($rewardValue > $rewardHOTELmin) {
-                                    $rewardList[] = $rewardHotelsss;
+                                $rewardList = array();
+                                foreach ($rewadhtel[1] as $rewardHotelsss) {
+                                    $rewardValue = preg_replace('/\D/', '', $rewardHotelsss);
+                                    if ($rewardValue > $rewardHOTELmin) {
+                                        $rewardList[] = $rewardHotelsss;
+                                    }
                                 }
-                            }
 
-                            if (!empty($rewardList)) {
-                                foreach ($rewardList as $index => $rewardHotelsss) {
-                                    $rewardHOTEL =  "[ " . ($index + 1) . ". $rewardHotelsss ]";
+                                if (!empty($rewardList)) {
+                                    foreach ($rewardList as $index => $rewardHotelsss) {
+                                        $rewardHOTEL =  "[ " . ($index + 1) . ". $rewardHotelsss ]";
+                                    }
+                                } else {
+                                    $rewardHOTEL =  "KURANG DARI Rp $hotelSearchReward!!";
+                                }
+
+                                if (strpos($resultLink, "No credit card" && "Tanpa kartu kredit") !== false) {
+                                    $hasilPAGE = "[+] [ $ripiewHotel[1] Ulasan ] " . strtoupper($namaHotel[1]) . " => REWARD : $rewardHOTEL => TIDAK BUTUH CREDIT CARD!! | LINK : $linkShort\n";
+                                    echo $hasilPAGE;
+
+                                    $saveDATA = fopen("NoNeedCC-$pageNegaraHalaman.txt", "a");
+                                    fputs($saveDATA, "[+] $hasilPAGE HASIL PAGE CEK URL " . strtoupper($searschN[1][0]) . " ~ $pageress[1] ~ \r");
+                                    fclose($saveDATA);
+                                } else {
+                                    $hasilPAGE = "[+] [ $ripiewHotel[1] Ulasan ] " . strtoupper($namaHotel[1]) . " => REWARD : " . implode(' ', $rewardList) . " => BUTUH CREDIT CARD!! | LINK : $linkShort\n";
+                                    echo $hasilPAGE;
+
+                                    $saveDATA = fopen("NeedCC-$pageNegaraHalaman.txt", "a");
+                                    fputs($saveDATA, "[+] [ $ripiewHotel[1] Ulasan ] " . strtoupper($namaHotel[1]) . " => REWARD : " . implode(' ', $rewardList) . " => BUTUH CREDIT CARD!! | LINK : $linkShort| HASIL PAGE CEK URL " . strtoupper($searschN[1][0]) . " ~ $pageress[1] ~ \r");
+                                    fclose($saveDATA);
                                 }
                             } else {
-                                $rewardHOTEL =  "KURANG DARI Rp $hotelSearchReward!!";
+                                // echo "[+] [ $ripiewHotel[1] Ulasan ] " . strtoupper($namaHotel[1]) . " => KOSONG TIDAK ADA REWARD!!\n";
                             }
-
-                            if (strpos($resultLink, "No credit card" && "Tanpa kartu kredit") !== false) {
-                                $hasilPAGE = "[+] [ $ripiewHotel[1] Ulasan ] " . strtoupper($namaHotel[1]) . " => REWARD : $rewardHOTEL => TIDAK BUTUH CREDIT CARD!! | LINK : $linkShort\n";
-                                echo $hasilPAGE;
-
-                                $saveDATA = fopen("result/NoNeedCC-$pageNegaraHalaman.txt", "a");
-                                fputs($saveDATA, "[+] $hasilPAGE HASIL PAGE CEK URL " . strtoupper($searschN[1][0]) . " ~ $pageress[1] ~ \r");
-                                fclose($saveDATA);
-                            } else {
-                                $hasilPAGE = "[+] [ $ripiewHotel[1] Ulasan ] " . strtoupper($namaHotel[1]) . " => REWARD : " . implode(' ', $rewardList) . " => BUTUH CREDIT CARD!! | LINK : $linkShort\n";
-                                echo $hasilPAGE;
-
-                                $saveDATA = fopen("result/NeedCC-$pageNegaraHalaman.txt", "a");
-                                fputs($saveDATA, "[+] [ $ripiewHotel[1] Ulasan ] " . strtoupper($namaHotel[1]) . " => REWARD : " . implode(' ', $rewardList) . " => BUTUH CREDIT CARD!! | LINK : $linkShort| HASIL PAGE CEK URL " . strtoupper($searschN[1][0]) . " ~ $pageress[1] ~ \r");
-                                fclose($saveDATA);
-                            }
-                        } else {
-                            // echo "[+] [ $ripiewHotel[1] Ulasan ] " . strtoupper($namaHotel[1]) . " => KOSONG TIDAK ADA REWARD!!\n";
                         }
                     }
+                } else {
+                    echo "[!] PAGE / HALAMAN TIDAK ADA RESULT!!\n";
                 }
             } else {
-                echo "[!] PAGE / HALAMAN TIDAK ADA RESULT!!\n";
+                echo "[!] HALAMAN TIDAK DITEMUKAN!!\n";
             }
         }
     }
@@ -197,7 +201,7 @@ function cekDetail($linkHOTEL, $cookieBOCOM)
     return $resultLink;
 }
 
-function shortLink($linkHOTEL)
+function shortLink($linkHOTEL, $apiSHORT)
 {
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, 'https://t.ly/api/v1/link/shorten');
@@ -209,7 +213,7 @@ function shortLink($linkHOTEL)
         'Authority: t.ly',
         'Accept: application/json',
         'Accept-Language: id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7',
-        'Authorization: Bearer PupuS2Z3b6qGKfFo4EGY3FwCqoJJUsJZwmeDOAMrvTE5ExhNsOb7evgLsKdD',
+        'Authorization: Bearer ' . $apiSHORT,
         'Content-Type: application/json'
     );
     curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
@@ -240,6 +244,4 @@ function inputRP($text)
     echo $text . " => Rp ";
     $a = trim(fgets(STDIN));
     return $a;
-}
-
 }
